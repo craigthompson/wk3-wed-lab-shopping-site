@@ -33,7 +33,8 @@ app.get("/all-animals", (req, res) => {
 });
 
 app.get("/animal-details/:animalId", (req, res) => {
-  res.render("animal-details.html", { animal: stuffedAnimalData.elephant });
+  const animalObj = getAnimalDetails(req.params.animalId);
+  res.render("animal-details.html", { animal: animalObj });
 });
 
 app.get("/add-to-cart/:animalId", (req, res) => {
@@ -44,6 +45,25 @@ app.get("/add-to-cart/:animalId", (req, res) => {
   // - check if the desired animal id is in the cart, and if not, put it in
   // - increment the count for that animal id by 1
   // - redirect the user to the cart page
+  const sessionObj = req.session;
+  const animalId = req.params.animalId;
+
+  if (!sessionObj.cart) {
+    sessionObj.cart = {};
+  }
+  console.log("animalId: ", animalId);
+  // If cart[animalId] exist then add 1 to it, otherwise set 1 into cart[animalId] which will be created upon assignment.
+  // sessionObj.cart[animalId] = sessionObj.cart[animalId]
+  //   ? sessionObj.cart[animalId] + 1
+  //   : 1;
+
+  if (!sessionObj.cart[animalId]) {
+    sessionObj.cart[animalId] = 0;
+  }
+  sessionObj.cart[animalId] += 1;
+
+  console.log("Session cart: ", sessionObj.cart);
+  res.redirect("/cart");
 });
 
 app.get("/cart", (req, res) => {
@@ -64,8 +84,17 @@ app.get("/cart", (req, res) => {
 
   // Make sure your function can also handle the case where no cart has
   // been added to the session
-
-  res.render("cart.html");
+  console.log("\n*************************");
+  const cart = req.session.cart;
+  console.log("Cart ", cart);
+  const arrAnimalsInCart = [];
+  for (const animal in cart) {
+    console.log("Animal ", animal);
+    const animalObj = getAnimalDetails(animal);
+    animalObj.quantity = cart[animal];
+    console.log("animalObj ", animalObj);
+  }
+  res.render("cart.html", cart);
 });
 
 app.get("/checkout", (req, res) => {

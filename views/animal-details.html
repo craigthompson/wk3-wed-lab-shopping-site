@@ -1,6 +1,4 @@
-{% extends 'base.html.njk' %}
-
-{% block body %}
+{% extends 'base.html' %} {% block body %}
 <h2>{{ animal.name }}</h2>
 
 <img src="{{ animal.image_url }}" />
@@ -14,6 +12,8 @@
   <li>Size: {{animal.size}}</li>
 </ul>
 
-<a class="btn btn-primary" href="/add-to-cart/{{ animal.animal_id }}">Add to cart</a>
+<a class="btn btn-primary" href="/add-to-cart/{{ animal.animal_id }}"
+  >Add to cart</a
+>
 
 {% endblock %}

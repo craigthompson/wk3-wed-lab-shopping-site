@@ -48,21 +48,15 @@ app.get("/add-to-cart/:animalId", (req, res) => {
   const sessionObj = req.session;
   const animalId = req.params.animalId;
 
-  if (!sessionObj.cart) {
-    sessionObj.cart = {};
+  if (!req.session.cart) {
+    req.session.cart = {};
   }
-  console.log("animalId: ", animalId);
   // If cart[animalId] exist then add 1 to it, otherwise set 1 into cart[animalId] which will be created upon assignment.
-  // sessionObj.cart[animalId] = sessionObj.cart[animalId]
-  //   ? sessionObj.cart[animalId] + 1
-  //   : 1;
+  sessionObj.cart[animalId] = sessionObj.cart[animalId]
+    ? sessionObj.cart[animalId] + 1
+    : 1;
 
-  if (!sessionObj.cart[animalId]) {
-    sessionObj.cart[animalId] = 0;
-  }
-  sessionObj.cart[animalId] += 1;
-
-  console.log("Session cart: ", sessionObj.cart);
+  console.log("Session cart: ", req.session.cart);
   res.redirect("/cart");
 });
 
@@ -84,17 +78,20 @@ app.get("/cart", (req, res) => {
 
   // Make sure your function can also handle the case where no cart has
   // been added to the session
-  console.log("\n*************************");
   const cart = req.session.cart;
-  console.log("Cart ", cart);
   const arrAnimalsInCart = [];
+  let totalOrderCost = 0;
   for (const animal in cart) {
-    console.log("Animal ", animal);
     const animalObj = getAnimalDetails(animal);
     animalObj.quantity = cart[animal];
-    console.log("animalObj ", animalObj);
+    animalObj.subtotal = cart[animal] * animalObj.price;
+    totalOrderCost += animalObj.subtotal;
+    arrAnimalsInCart.push(animalObj);
   }
-  res.render("cart.html", cart);
+  res.render("cart.html", {
+    cartOfAnimals: arrAnimalsInCart,
+    totalCost: totalOrderCost,
+  });
 });
 
 app.get("/checkout", (req, res) => {
